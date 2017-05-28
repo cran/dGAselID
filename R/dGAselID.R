@@ -2,6 +2,26 @@
 #	InitialPopulation
 ####################################################################
 #
+#' InitialPopulation
+#'
+#' Generates an initial randomly generated population of haploid genotypes.
+#' @aliases InitialPopulation
+#' @param x Dataset in ExpressionSet format.
+#' @param populationSize Number of genotypes in initial population.
+#' @param startGenes Genes in the genotypes at initialization.
+#' @param EveryGeneInInitialPopulation Request for every gene to be present in the initial population. The default value is TRUE.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' population01<-InitialPopulation(demoALL, 4, 4)
+#' population02<-InitialPopulation(demoALL, 20, 4, FALSE)
+#'  }
+#' @export
+
 InitialPopulation <- function(x, populationSize, startGenes, EveryGeneInInitialPopulation=TRUE) {
   cat(paste("\nGenerating the initial population...\n"))
   genomeLength=length(featureNames(x));
@@ -46,6 +66,23 @@ InitialPopulation <- function(x, populationSize, startGenes, EveryGeneInInitialP
 #	Individuals
 ####################################################################
 #
+#' Individuals
+#'
+#' Generates individuals with diploid genotypes.
+#' @aliases Individuals
+#' @param population Population of haploid genotypes.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' population02<-InitialPopulation(demoALL, 20, 4, FALSE)
+#' Individuals(population02)
+#'  }
+#' @export
+#
 Individuals<-function(population){
   cat(paste("\tGenerating Individuals...\n"))
   if(nrow(population)%%2==1){
@@ -61,6 +98,25 @@ Individuals<-function(population){
 ####################################################################
 #	Split Chromosomes
 ####################################################################
+#
+#' splitChromosomes
+#'
+#' Divides the genotypes into sets with a desired number of chromosomes.
+#' @aliases splitChromosomes
+#' @param x Dataset in ExpressionSet format.
+#' @param noChr Desired number of chromosomes. The default value is 22.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' splitChromosomes(demoALL, 3)
+#' splitChromosomes(demoALL)
+#'
+#'  }
+#' @export
 #
 splitChromosomes <- function(x, noChr=22) {
 
@@ -84,7 +140,7 @@ splitChromosomes <- function(x, noChr=22) {
   chr<-as.integer(newPercent*toSplit/100);
   rm(newPercent);
 
-  chr[noChr]<-chr[noChr]+(toSplit-sum(chr));  #Adjust for the length difference
+  chr[noChr]<-chr[noChr]+(toSplit-sum(chr));
   rm(toSplit);
   rm(noChr);
 
@@ -104,6 +160,24 @@ splitChromosomes <- function(x, noChr=22) {
 #	RandomizePop
 ####################################################################
 #
+#' RandomizePop
+#'
+#' Generates a random population for the next generation.
+#' @aliases RandomizePop
+#' @param population Population of chromosome sets in current generation.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' population01<-InitialPopulation(demoALL, 4, 4)
+#' population01
+#' RandomizePop(population01)
+#'  }
+#' @export
+#
 RandomizePop<-function(population){
   cat(paste("\tRandomizing the population...\n"))
   newIndex<-sample(1:dim(population)[1], replace=FALSE)
@@ -115,6 +189,50 @@ RandomizePop<-function(population){
 ####################################################################
 #	Evaluate Population
 ####################################################################
+#
+#'  EvaluationFunction
+#'
+#' Evaluates the individuals' fitnesses.
+#' @aliases EvaluationFunction
+#' @param x Dataset in ExpressionSet format.
+#' @param individuals Population of individuals with diploid genotypes.
+#' @param response Response variable.
+#' @param method Supervised classifier for fitness evaluation. Most of the supervised classifiers in MLInterfaces are acceptable. The default is knn.cvI(k=3, l=2).
+#' @param trainTest Cross-validation method. The default is "LOG".
+#' @param nnetSize for nnetI. The default value is NA.
+#' @param nnetDecay for nnetI. The default value is NA.
+#' @param rdaAlpha for rdaI. The default value is NA.
+#' @param rdaDelta for rdaI. The default value is NA.
+#' @param ... Additional arguments.
+#' @examples
+#' \dontrun{
+#'  library(genefilter)
+#'  library(ALL)
+#'  data(ALL)
+#'  bALL = ALL[, substr(ALL$BT,1,1) == "B"]
+#'  smallALL = bALL[, bALL$mol.biol %in% c("BCR/ABL", "NEG")]
+#'  smallALL$mol.biol = factor(smallALL$mol.biol)
+#'  smallALL$BT = factor(smallALL$BT)
+#'  f1 <- pOverA(0.25, log2(100))
+#'  f2 <- function(x) (IQR(x) > 0.5)
+#'  f3 <- ttest(smallALL$mol.biol, p=0.1)
+#'  ff <- filterfun(f1, f2, f3)
+#'  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+#'  smallALL = smallALL[selectedsmallALL, ]
+#'  rm(f1)
+#'  rm(f2)
+#'  rm(f3)
+#'  rm(ff)
+#'  rm(bALL)
+#'  sum(selectedsmallALL)
+#'  set.seed(1357)
+#'
+#'  population0<-InitialPopulation(smallALL, 14, 8, FALSE)
+#'  individuals0<-Individuals(population0)
+#'  results<-EvaluationFunction(smallALL, individuals0, response="mol.biol",
+#'              method=knn.cvI(k=3, l=2), trainTest="LOG")
+#'  }
+#' @export
 #
 EvaluationFunction <- function(x, individuals, response, method, trainTest, nnetSize=NA, nnetDecay=NA, rdaAlpha=NA, rdaDelta=NA, ...){
   cat(paste("\tEvaluating Fitnesses...\n"))
@@ -157,6 +275,46 @@ EvaluationFunction <- function(x, individuals, response, method, trainTest, nnet
 #	AnalyzeResults
 ####################################################################
 #
+#' AnalyzeResults
+#'
+#' Ranks individuals according to their fitness and records the results.
+#' @aliases AnalyzeResults
+#' @param individuals Population of individuals with diploid genotypes.
+#' @param results Results returned by EvaluationFunction().
+#' @param randomAssortment Random Assortment of Chromosomes for recombinations. The default value is TRUE.
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @examples
+#' \dontrun{
+#'  library(genefilter)
+#'  library(ALL)
+#'  data(ALL)
+#'  bALL = ALL[, substr(ALL$BT,1,1) == "B"]
+#'  smallALL = bALL[, bALL$mol.biol %in% c("BCR/ABL", "NEG")]
+#'  smallALL$mol.biol = factor(smallALL$mol.biol)
+#'  smallALL$BT = factor(smallALL$BT)
+#'  f1 <- pOverA(0.25, log2(100))
+#'  f2 <- function(x) (IQR(x) > 0.5)
+#'  f3 <- ttest(smallALL$mol.biol, p=0.1)
+#'  ff <- filterfun(f1, f2, f3)
+#'  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+#'  smallALL = smallALL[selectedsmallALL, ]
+#'  rm(f1)
+#'  rm(f2)
+#'  rm(f3)
+#'  rm(ff)
+#'  rm(bALL)
+#'  sum(selectedsmallALL)
+#'  set.seed(1357)
+#'
+#'  population0<-InitialPopulation(smallALL, 14, 10, FALSE)
+#'  individuals0<-Individuals(population0)
+#'  results0<-EvaluationFunction(smallALL, individuals0, response="mol.biol",
+#'              method=knn.cvI(k=3, l=2), trainTest="LOG")
+#'  chrConf0<-splitChromosomes(smallALL)
+#'  iterRes0<-AnalyzeResults(individuals0, results0, randomAssortment=TRUE, chrConf0)
+#'  }
+#' @export
+#
 AnalyzeResults<-function(individuals, results, randomAssortment=TRUE, chrConf){
   cat(paste("\tAnalyzing the results\n"))
   keep<-matrix(0, nrow=nrow(individuals), ncol=1)
@@ -174,7 +332,14 @@ AnalyzeResults<-function(individuals, results, randomAssortment=TRUE, chrConf){
   if (randomAssortment==TRUE){
     for (j in 1:(nrow(individuals)/2)){
       selChr<-individuals[results[,1]==j, -1]
-      newChr<-RandomAssortment(Crossover(selChr[1,], selChr[2,], chrConf), chrConf)
+      repeat {
+        newChr<-RandomAssortment(Crossover(selChr[1,], selChr[2,], chrConf), chrConf)
+
+        if ((sum(newChr[1,])>3)&&(sum(newChr[2,])>3)){
+          break
+        }
+        cat(paste("\tFailed crossover & random assortment...Redone.\n"))
+      }
       newChromosomes<-cbind(c(j,j), newChr)
       crossOvers<-rbind(crossOvers, newChromosomes)
     }
@@ -186,7 +351,14 @@ AnalyzeResults<-function(individuals, results, randomAssortment=TRUE, chrConf){
   } else {
     for (j in 1:(nrow(individuals)/2)){
       selChr<-individuals[results[,1]==j, -1]
-      newChr<-Crossover(selChr[1,], selChr[2,], chrConf)
+      repeat {
+        newChr<-Crossover(selChr[1,], selChr[2,], chrConf)
+
+        if ((sum(newChr[1,])>3)&&(sum(newChr[2,])>3)){
+          break
+        }
+        cat(paste("\tFailed crossover...Redone.\n"))
+      }
       newChromosomes<-cbind(c(j,j), newChr)
       crossOvers<-rbind(crossOvers, newChromosomes)
     }
@@ -200,6 +372,28 @@ AnalyzeResults<-function(individuals, results, randomAssortment=TRUE, chrConf){
 ####################################################################
 #	Crossover
 ####################################################################
+#
+#' Crossover
+#'
+#' Two-point crossover operator.
+#' @aliases Crossover
+#' @param c1 Set of chromosomes.
+#' @param c2 Set of chromosomes.
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#' set.seed(1357)
+#' population02<-InitialPopulation(demoALL, 2, 4, FALSE)
+#' chrConf02<-splitChromosomes(demoALL, 2)
+#' chrConf02
+#' population02[1:2,]
+#' Crossover(population02[1,], population02[2,], chrConf02)
+#'  }
+#' @export
 #
 Crossover<-function(c1, c2, chrConf){
   crossVector<-rep(0, length(c1))
@@ -231,6 +425,30 @@ Crossover<-function(c1, c2, chrConf){
 #	RandomAssortment
 ####################################################################
 #
+#' RandomAssortment
+#'
+#' Random assortment of chromosomes operator.
+#' @aliases RandomAssortment
+#' @param newChrs Set of chromosomes.
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' population02<-InitialPopulation(demoALL, 20, 4, FALSE)
+#' chrConf02<-splitChromosomes(demoALL, 5)
+#'
+#' set.seed(1357)
+#' cr1<-Crossover(population02[1,], population02[2,], chrConf02)
+#' RandomAssortment(cr1, chrConf02)
+#' cr1
+#' chrConf02
+#'  }
+#' @export
+#
 RandomAssortment<-function(newChrs, chrConf){
   AssortIndex<-sample(c(0,1), size=max(chrConf), replace = TRUE)
   c3<-rep(NA, ncol(newChrs))
@@ -255,20 +473,429 @@ RandomAssortment<-function(newChrs, chrConf){
 }
 
 ####################################################################
-#	Mutation
+#Point Mutations
 ####################################################################
 #
-Mutation<-function(individuals, mutationChance){
+#'  pointMutation
+#'
+#' Operator for the point mutation.
+#' @aliases pointMutation
+#' @param individuals dataset returned by Individuals().
+#' @param mutationChance chance for a point mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population01<-InitialPopulation(demoALL, 4, 4)
+#' individuals01<-Individuals(population01)
+#'
+#' individuals01
+#' pointMutation(individuals01, 5)
+#'  }
+#' @export
+#
+pointMutation<-function(individuals, mutationChance){
   noMutations<-floor(mutationChance/100*length(individuals[,-1]))
-  cat(paste("\tApplying", noMutations, "mutations...\n"))
+  cat(paste("\tApplying", noMutations, "Point Mutations...\n"))
+  individualsOrig<-individuals
   indexes<-sample(0:length(individuals[,-1]),noMutations)
   individuals[,-1][indexes]=as.numeric(!as.logical(individuals[,-1][indexes]))
+
+  for (q in 1:dim(individuals[,-1])[1]) {
+    if (sum(individuals[q,-1])<4){
+      individuals[q,]=individualsOrig[q,];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+  rm(q)
+  rm(individualsOrig)
+
   return(individuals)
 }
+
+#########################################################################
+#Nonsense Mutations
+#########################################################################
+#
+#' nonSenseMutation
+#'
+#' Operator for the nonsense mutation.
+#' @aliases nonSenseMutation
+#' @param individuals dataset returned by Individuals().
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @param mutationChance Chance for a nonsense mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population03<-InitialPopulation(demoALL, 4, 10)
+#' individuals03<-Individuals(population03)
+#' chrConf03<-splitChromosomes(demoALL, 2)
+#' chrConf03
+#' individuals03
+#'
+#' nonSenseMutation(individuals03, chrConf03, 20)
+#'  }
+#' @export
+#
+nonSenseMutation<-function(individuals, chrConf, mutationChance){
+  noChr<-max(chrConf)
+  noMutations<-floor(mutationChance/100*dim(individuals)[1]*noChr)
+  cat(paste("\tApplying", noMutations, "NonSenseMutation mutations...\n"))
+  indexes<-sample(1:length(individuals[,-1]), noMutations)
+  indexChr<-rep(chrConf, dim(individuals)[1])
+  addIndexes<-c()
+  for (i in indexes) {
+    p<-i
+    repeat {
+      p<-p+1
+      if (!identical(indexChr[i], indexChr[p])||identical(i, length(individuals[,-1]))){
+        break;
+      }
+      addIndexes<-c(addIndexes, p)
+    }
+  }
+  rm(i)
+  allIndexes<-sort(c(indexes, addIndexes), decreasing = FALSE)
+  invIndividuals<-t(individuals)
+  for (i in allIndexes) {
+    invIndividuals[-1,][i]=0
+  }
+
+  for (q in 1:dim(invIndividuals[-1,])[2]) {
+    if (sum(invIndividuals[-1,q])<4){
+      invIndividuals[,q]=t(individuals)[,q];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+
+  individuals<-t(invIndividuals)
+  rm(invIndividuals)
+  rm(i)
+  rm(q)
+  rm(addIndexes)
+  rm(indexes)
+  rm(allIndexes)
+  return(individuals)
+}
+
+#########################################################################
+#Frameshift Mutations
+#########################################################################
+#
+#' frameShiftMutation
+#'
+#' Operator for the frameshift mutation.
+#' @aliases frameShiftMutation
+#' @param individuals dataset returned by Individuals().
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @param mutationChance Chance for a frameshift mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population03<-InitialPopulation(demoALL, 4, 5)
+#' individuals03<-Individuals(population03)
+#' chrConf03<-splitChromosomes(demoALL, 2)
+#' chrConf03
+#' individuals03
+#'
+#' frameShiftMutation(individuals03, chrConf03, 20)
+#'  }
+#' @export
+#
+frameShiftMutation<-function(individuals, chrConf, mutationChance){
+  noChr<-max(chrConf)
+  noMutations<-floor(mutationChance/100*dim(individuals)[1]*noChr)
+  cat(paste("\tApplying", noMutations, "FrameShiftMutation mutations...\n"))
+  indexes<-sample(1:length(individuals[,-1]),noMutations)
+  indexChr<-rep(chrConf, dim(individuals)[1])
+  addIndexes<-c()
+  for (i in indexes) {
+    p<-i
+    repeat {
+      p<-p+1
+      if (!identical(indexChr[i], indexChr[p])||identical(i, length(individuals[,-1]))){
+        break;
+      }
+      addIndexes<-c(addIndexes, p)
+    }
+  }
+  rm(i)
+  allIndexes<-sort(c(indexes, addIndexes), decreasing = FALSE)
+  invIndividuals<-t(individuals)
+  for (j in 1:length(allIndexes)) {
+    if (identical(allIndexes[j]+1, allIndexes[j+1])){
+      invIndividuals[-1,][allIndexes[j]]=invIndividuals[-1,][allIndexes[j]+1]
+    }else{
+      invIndividuals[-1,][allIndexes[j]]=0
+    }
+  }
+
+  for (q in 1:dim(invIndividuals[-1,])[2]) {
+    if (sum(invIndividuals[-1,q])<4){
+      invIndividuals[,q]=t(individuals)[,q];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+
+  individuals<-t(invIndividuals)
+  rm(invIndividuals)
+  rm(j)
+  rm(q)
+  rm(addIndexes)
+  rm(indexes)
+  rm(allIndexes)
+  return(individuals)
+}
+
+#########################################################################
+#Large Segment Deletion during MEIOSIS
+#########################################################################
+#
+#' largeSegmentDeletion
+#'
+#' Operator for the large segment deletion.
+#' @aliases largeSegmentDeletion
+#' @param individuals dataset returned by Individuals().
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @param mutationChance Chance for a large segment deletion mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population03<-InitialPopulation(demoALL, 4, 7)
+#' individuals03<-Individuals(population03)
+#' chrConf03<-splitChromosomes(demoALL, 2)
+#' chrConf03
+#' individuals03
+#'
+#' largeSegmentDeletion(individuals03, chrConf03, 20)
+#'  }
+#' @export
+#
+largeSegmentDeletion<-function(individuals, chrConf, mutationChance){
+  noChr<-max(chrConf)
+  indexesChr<-sample(1:(dim(individuals)[1]*noChr),floor(mutationChance/100*dim(individuals)[1]*noChr))
+  indivIndex<-ceiling(indexesChr/noChr)
+  chrIndex<-indexesChr%/%indivIndex
+  noMutations<-length(indexesChr)
+  cat(paste("\tApplying", noMutations, "LargeSegmentDeletion mutations...\n"))
+
+  individualsOrig<-individuals
+
+  for (i in 1:length(indexesChr)) {
+    margins<-sort(sample(1:(length(individuals[,-1][indivIndex[i],chrConf==chrIndex[i]])),2, replace=FALSE), decreasing = FALSE)
+    individuals[,-1][indivIndex[i],chrConf==chrIndex[i]][margins[1]:margins[2]]=0
+  }
+
+  for (q in 1:dim(individuals[,-1])[1]) {
+    if (sum(individuals[q,-1])<4){
+      individuals[q,]=individualsOrig[q,];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+
+  rm(i)
+  rm(q)
+  rm(individualsOrig)
+  rm(indexesChr)
+  rm(indivIndex)
+  rm(chrIndex)
+  return(individuals)
+}
+
+#########################################################################
+#Whole Chromosome Deletion Mutation
+#########################################################################
+#
+#' wholeChromosomeDeletion
+#'
+#' Operator for the deletion of a whole chromosome.
+#' @aliases wholeChromosomeDeletion
+#' @param individuals dataset returned by Individuals().
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @param mutationChance Chance for a deletion of a whole chromosome mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population03<-InitialPopulation(demoALL, 4, 10)
+#' individuals03<-Individuals(population03)
+#' chrConf03<-splitChromosomes(demoALL, 2)
+#' chrConf03
+#' individuals03
+#'
+#' wholeChromosomeDeletion(individuals03, chrConf03, 20)
+#'  }
+#' @export
+#
+wholeChromosomeDeletion<-function(individuals, chrConf, mutationChance){
+  noChr<-max(chrConf)
+  indexesChr<-sample(1:(dim(individuals)[1]*noChr),floor(mutationChance/100*dim(individuals)[1]*noChr))
+  indivIndex<-ceiling(indexesChr/noChr)
+  chrIndex<-indexesChr%/%indivIndex
+  noMutations<-length(indexesChr)
+  cat(paste("\tApplying", noMutations, "WholeChromosomeDeletion mutations...\n"))
+
+  individualsOrig<-individuals
+
+  for (i in 1:length(indexesChr)) {
+    individuals[,-1][indivIndex[i],chrConf==chrIndex[i]]=0
+  }
+
+  for (q in 1:dim(individuals[,-1])[1]) {
+    if (sum(individuals[q,-1])<4){
+      individuals[q,]=individualsOrig[q,];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+
+  rm(i)
+  rm(q)
+  rm(individualsOrig)
+  rm(indexesChr)
+  rm(indivIndex)
+  rm(chrIndex)
+  return(individuals)
+}
+
+#########################################################################
+#Transposons
+#########################################################################
+#
+#' transposon
+#'
+#' Operator for transposons.
+#' @aliases transposon
+#' @param individuals dataset returned by Individuals().
+#' @param chrConf Configuration of chromosomes returned by splitChromosomes().
+#' @param mutationChance Chance for a transposon mutation to occur.
+#' @examples
+#' \dontrun{
+#' library(ALL)
+#' data(ALL)
+#'
+#' demoALL<-ALL[1:12,1:8]
+#'
+#' set.seed(1357)
+#' population03<-InitialPopulation(demoALL, 4, 5)
+#' individuals03<-Individuals(population03)
+#' chrConf03<-splitChromosomes(demoALL, 2)
+#' chrConf03
+#' individuals03
+#'
+#' transposon(individuals03, chrConf03, 20)
+#'  }
+#' @export
+#
+transposon<-function(individuals, chrConf, mutationChance){
+  noChr<-max(chrConf)
+  indexesChr<-sample(1:(dim(individuals)[1]*noChr),floor(mutationChance/100*dim(individuals)[1]*noChr))
+  indivIndex<-ceiling(indexesChr/noChr)
+  chrIndex<-indexesChr%/%indivIndex
+  noMutations<-length(indexesChr)
+  cat(paste("\tApplying", noMutations, "Transposons mutations...\n"))
+
+  individualsOrig<-individuals
+
+  for (i in 1:length(indexesChr)) {
+    pickFrom<-as.numeric(which(individuals[,-1][indivIndex[i],chrConf==chrIndex[i]]==1))
+    if(length(pickFrom)!=0){
+      transposon<-sample(pickFrom, 1)
+      positions<-sample(c(-(sum(chrConf==chrIndex[i])-1):-1, 1:(sum(chrConf==chrIndex[i])-1)), 1)
+      newIndex<-transposon+positions
+      if (newIndex>sum(chrConf==chrIndex[i])){
+        newIndex<-newIndex-sum(chrConf==chrIndex[i])
+      }
+
+      if (newIndex<1){
+        newIndex<-sum(chrConf==chrIndex[i])+newIndex
+      }
+      individuals[,-1][indivIndex[i],chrConf==chrIndex[i]][transposon]=0
+      individuals[,-1][indivIndex[i],chrConf==chrIndex[i]][newIndex]=1
+    }
+  }
+
+  for (q in 1:dim(individuals[,-1])[1]) {
+    if (sum(individuals[q,-1])<4){
+      individuals[q,]=individualsOrig[q,];
+      cat(paste("\tInvalid mutated genotype.Not inherited....\n"))
+    }
+  }
+
+  rm(i)
+  rm(q)
+  rm(individualsOrig)
+  rm(indexesChr)
+  rm(indivIndex)
+  rm(chrIndex)
+  return(individuals)
+}
+#########################################################################
 
 ####################################################################
 #	Elitism
 ####################################################################
+#
+#' Elitism
+#'
+#' Operator for elitism.
+#' @aliases Elitism
+#' @param results Results returned by EvaluationFunction().
+#' @param elitism Elite population in percentages.
+#' @param ID Dominance. The default value is "ID1". Use "ID2" for Incomplete Dominance.
+#' @examples
+#' \dontrun{
+#'  library(genefilter)
+#'  library(ALL)
+#'  data(ALL)
+#'  bALL = ALL[, substr(ALL$BT,1,1) == "B"]
+#'  smallALL = bALL[, bALL$mol.biol %in% c("BCR/ABL", "NEG")]
+#'  smallALL$mol.biol = factor(smallALL$mol.biol)
+#'  smallALL$BT = factor(smallALL$BT)
+#'  f1 <- pOverA(0.25, log2(100))
+#'  f2 <- function(x) (IQR(x) > 0.5)
+#'  f3 <- ttest(smallALL$mol.biol, p=0.1)
+#'  ff <- filterfun(f1, f2, f3)
+#'  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+#'  smallALL = smallALL[selectedsmallALL, ]
+#'  rm(f1)
+#'  rm(f2)
+#'  rm(f3)
+#'  rm(ff)
+#'  rm(bALL)
+#'  sum(selectedsmallALL)
+#'  set.seed(1357)
+#'
+#'  population0<-InitialPopulation(smallALL, 14, 8, FALSE)
+#'  individuals0<-Individuals(population0)
+#'  results0<-EvaluationFunction(smallALL, individuals0, response="mol.biol",
+#'              method=knn.cvI(k=3, l=2), trainTest="LOG")
+#'  Elitism(results0, 25, ID="ID1")
+#'  Elitism(results0, 25, ID="ID2")
+#'  }
+#' @export
 #
 Elitism<-function(results, elitism, ID){
   cat(paste("\tApplying Elitism...Keeping the Best ", elitism, "%\n"))
@@ -283,7 +910,7 @@ Elitism<-function(results, elitism, ID){
   keep<-matrix(0, nrow=nrow(results), ncol=1)
   rownames(keep)<-rownames(results)
   colnames(keep)<-"Keep"
-  toKeep<-sort(results[,elite], decreasing = TRUE, index.return=TRUE)	#aici pune results[,2]
+  toKeep<-sort(results[,elite], decreasing = TRUE, index.return=TRUE)
   toKeep<-toKeep$ix
   newIndex<-floor(length(toKeep)*elitism/100)
   rez<-results[toKeep,]
@@ -291,9 +918,48 @@ Elitism<-function(results, elitism, ID){
   keep[toKeep]<-1
   return(list(keep, toKeep))
 }
+
 ####################################################################
 #	EmbryonicSelection
 ####################################################################
+#
+#' EmbryonicSelection
+#'
+#' Function for deleting individuals with a fitness below a specified threshold.
+#' @aliases EmbryonicSelection
+#' @param population Population of individuals with diploid genotypes.
+#' @param results Results returned by EvaluationFunction().
+#' @param embryonicSelection Threshold value. The default value is NA.
+#' @examples
+#' \dontrun{
+#'  library(genefilter)
+#'  library(ALL)
+#'  data(ALL)
+#'  bALL = ALL[, substr(ALL$BT,1,1) == "B"]
+#'  smallALL = bALL[, bALL$mol.biol %in% c("BCR/ABL", "NEG")]
+#'  smallALL$mol.biol = factor(smallALL$mol.biol)
+#'  smallALL$BT = factor(smallALL$BT)
+#'  f1 <- pOverA(0.25, log2(100))
+#'  f2 <- function(x) (IQR(x) > 0.5)
+#'  f3 <- ttest(smallALL$mol.biol, p=0.1)
+#'  ff <- filterfun(f1, f2, f3)
+#'  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+#'  smallALL = smallALL[selectedsmallALL, ]
+#'  rm(f1)
+#'  rm(f2)
+#'  rm(f3)
+#'  rm(ff)
+#'  rm(bALL)
+#'  sum(selectedsmallALL)
+#'  set.seed(1357)
+#'
+#'  population0<-InitialPopulation(smallALL, 14, 8, FALSE)
+#'  individuals0<-Individuals(population0)
+#'  results0<-EvaluationFunction(smallALL, individuals0, response="mol.biol",
+#'              method=knn.cvI(k=3, l=2), trainTest="LOG")
+#'  EmbryonicSelection(individuals0, results0, 0.5)
+#'  }
+#' @export
 #
 EmbryonicSelection<-function(population, results, embryonicSelection){
   cat(paste("\tApplying Embryonic Selection for Fitness > ", embryonicSelection, "\n"))
@@ -309,6 +975,22 @@ EmbryonicSelection<-function(population, results, embryonicSelection){
 ####################################################################
 #	PlotGenAlg
 ####################################################################
+#
+#' PlotGenAlg
+#'
+#' Function for graphically representing the evolution.
+#' @aliases PlotGenAlg
+#' @param DGenes Occurences of genes as dominant.
+#' @param dGenes Occurences of genes as recessive. For future developments.
+#' @param maxEval Maximum fitness.
+#' @param meanEval Average fitness.
+#' @examples
+#' \dontrun{
+#' 		#Graphical representation of the evolution after each generation.
+#' 		#Intended to be used by dGAselID() only.
+#' 		#Please refer to the example for dGAselID().
+#'  }
+#' @export
 #
 PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
   dev.off()
@@ -334,15 +1016,20 @@ PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
 #' @aliases dGAselID
 #' @param x Dataset in ExpressionSet format.
 #' @param response Response variable
-#' @param method Supervised classifier for fitness evaluation. Most of the supervised classifiers in MLInterfaces are acceptable. The default is knnI(k=3, l=2).
+#' @param method Supervised classifier for fitness evaluation. Most of the supervised classifiers in MLInterfaces are acceptable. The default is knn.cvI(k=3, l=2).
 #' @param trainTest Cross-validation method. The default is "LOG".
 #' @param startGenes Genes in the genotypes at initialization.
 #' @param populationSize Number of genotypes in initial population.
 #' @param iterations Number of iterations.
 #' @param noChr Number of chromosomes. The default value is 22.
 #' @param elitism Elite population in percentages.
-#' @param ID Incomplete Dominance. The default value is "ID1". Use "ID2" for elitism applied to individuals.
-#' @param pMutationChance Chance for a point mutation to occur.
+#' @param ID Dominance. The default value is "ID1". Use "ID2" for Incomplete Dominance.
+#' @param pMutationChance Chance for a Point Mutation to occur.
+#' @param nSMutationChance Chance for a Non-sense Mutation to occur.
+#' @param fSMutationChance Chance for a Frameshift Mutation to occur.
+#' @param lSDeletionChance Chance for a Large Segment Deletion to occur.
+#' @param wChrDeletionChance Chance for a Whole Chromosome Deletion to occur.
+#' @param transposonChance Chance for a Transposon Mutation to occur.
 #' @param randomAssortment Random Assortment of Chromosomes for recombinations. The default value is TRUE.
 #' @param embryonicSelection Remove chromosomes with fitness < specified value. The default value is NA.
 #' @param EveryGeneInInitialPopulation Request for every gene to be present in the initial population. The default value is TRUE.
@@ -360,23 +1047,26 @@ PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
 #'  smallALL = bALL[, bALL$mol.biol %in% c("BCR/ABL", "NEG")]
 #'  smallALL$mol.biol = factor(smallALL$mol.biol)
 #'  smallALL$BT = factor(smallALL$BT)
-#'  f1 <- pOverA(0.25, 9)
-#'  f2 <- function(x) (IQR(x) > 0.75)
+#'  f1 <- pOverA(0.25, log2(100))
+#'  f2 <- function(x) (IQR(x) > 0.5)
 #'  f3 <- ttest(smallALL$mol.biol, p=0.1)
 #'  ff <- filterfun(f1, f2, f3)
 #'  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+#'  smallALL = smallALL[selectedsmallALL, ]
+#'  rm(f1)
+#'  rm(f2)
+#'  rm(f3)
+#'  rm(ff)
+#'  rm(bALL)
 #'  sum(selectedsmallALL)
 #'
 #'  set.seed(1357)
-#'  res1<-dGAselID(smallALL, "mol.biol", method=knn.cvI(k=3, l=2), trainTest=1:79,
-#'    startGenes=5, populationSize=50, iterations=4, noChr=5, mutationChance=0.05,
-#'    elitism=10, ID="ID1")
+#'  res<-dGAselID(smallALL, "mol.biol", trainTest=5:79, startGenes=12, populationSize=500,
+#'                iterations=150, pMutationChance=0.025, elitism=4)
 #'  }
 #' @export
-
-
-
-dGAselID<-function(x, response, method=knnI(k=3, l=2), trainTest="LOG", startGenes, populationSize, iterations, noChr=22, elitism=NA, ID="ID1", pMutationChance=NA, randomAssortment=TRUE, embryonicSelection=NA, EveryGeneInInitialPopulation=TRUE, nnetSize=NA, nnetDecay=NA, rdaAlpha=NA, rdaDelta=NA, ...){
+#
+dGAselID<-function(x, response, method=knn.cvI(k=3, l=2), trainTest="LOG", startGenes, populationSize, iterations, noChr=22, elitism=NA, ID="ID1", pMutationChance=0, nSMutationChance=0, fSMutationChance=0, lSDeletionChance=0, wChrDeletionChance=0, transposonChance=0, randomAssortment=TRUE, embryonicSelection=NA, EveryGeneInInitialPopulation=TRUE, nnetSize=NA, nnetDecay=NA, rdaAlpha=NA, rdaDelta=NA, ...){
 
   if (typeof(x)!="S4") {
     stop("The supplied data is not an ExpressionSet.");
@@ -394,16 +1084,17 @@ dGAselID<-function(x, response, method=knnI(k=3, l=2), trainTest="LOG", startGen
     embryonicSelection = NA
   }
 
-  if (is.na(pMutationChance)) {
-    pMutationChance = 1/(2*length(featureNames(x))+1)
-  }
-
   if (is.na(elitism)) {
     elitism = 0
   }
 
   cat("Elitism =", elitism, "%\n")
-  cat("Mutations rate =", pMutationChance, "%\n")
+  cat("Point Mutations rate =", pMutationChance, "%\n")
+  cat("Non-sense Mutations rate =", nSMutationChance, "%\n")
+  cat("Frameshift Mutation rate =", fSMutationChance, "%\n")
+  cat("Large Segment Deletion rate =", lSDeletionChance, "%\n")
+  cat("Whole Chromosome Deletion rate =", wChrDeletionChance, "%\n")
+  cat("Transposon rate =", transposonChance, "%\n")
   cat("Embryonic Selection for fitness > ", embryonicSelection, "\n")
   cat("Fitness evaluation function =", method@mlFunName, "\n")
   cat("Cross-validation =", trainTest, "\n")
@@ -489,10 +1180,9 @@ dGAselID<-function(x, response, method=knnI(k=3, l=2), trainTest="LOG", startGen
     } else {
       keptElit<-Elitism(keptResults, elitism, ID)
       keptIndividualsFromParents<-keptIndividualsFromParents[keptElit[[2]],]
-      forBest<-keptIndividualsFromParents
-      forBest<-forBest[1,]
+      forBest<-rbind(keptIndividualsFromParents)[1,]
       keptResults<-keptResults[keptElit[[2]],]
-      keptInElitism<-nrow(keptResults)
+      keptInElitism<-nrow(rbind(keptResults))
     }
 
     best<-t(as.matrix(forBest))[,-1]
@@ -508,14 +1198,40 @@ dGAselID<-function(x, response, method=knnI(k=3, l=2), trainTest="LOG", startGen
     keptIndividuals<-rbind(keptIndividualsFromParents,keptIndividualsFromChildren)
     rownames(keptIndividuals)<-1:nrow(keptIndividuals)
 
-    kDGenes[1,]<-kDGenes[1,] + colSums(keptIndividualsFromParents[,-1])
+    tempMat<-matrix(0, nrow=1, ncol= ncol(individuals))
+    tempMat<-rbind(keptIndividualsFromParents)
+    kDGenes[1,]<-kDGenes[1,] + colSums(tempMat)[-1]
+    rm(tempMat)
 
     if((nrow(discardedIndividuals)>0)&&(ncol(discardedIndividuals)>0)){
-      kdGenes[1,]<-kdGenes[1,] + colSums(discardedIndividuals[,-1])
+      tempMat<-matrix(0, nrow=1, ncol= ncol(individuals))
+      tempMat<-rbind(keptIndividualsFromParents)
+      kdGenes[1,]<-kdGenes[1,] + colSums(tempMat)[-1]
+      rm(tempMat)
     }
 
     if(pMutationChance!=0){
-      keptIndividuals<-Mutation(keptIndividuals, pMutationChance)
+      keptIndividuals<-pointMutation(keptIndividuals, pMutationChance)
+    }
+
+    if(nSMutationChance!=0){
+      keptIndividuals<-nonSenseMutation(keptIndividuals, chrConf, nSMutationChance)
+    }
+
+    if(fSMutationChance!=0){
+      keptIndividuals<-frameShiftMutation(keptIndividuals, chrConf, fSMutationChance)
+    }
+
+    if(lSDeletionChance!=0){
+      keptIndividuals<-largeSegmentDeletion(keptIndividuals, chrConf, lSDeletionChance)
+    }
+
+    if(wChrDeletionChance!=0){
+      keptIndividuals<-wholeChromosomeDeletion(keptIndividuals, chrConf, wChrDeletionChance)
+    }
+
+    if(transposonChance!=0){
+      keptIndividuals<-transposon(keptIndividuals, chrConf, transposonChance)
     }
 
     for (i in 1:dim(keptIndividuals)[1]) {
@@ -547,4 +1263,5 @@ dGAselID<-function(x, response, method=knnI(k=3, l=2), trainTest="LOG", startGen
   rezultate<-list(DGenes=kDGenes, dGenes=kdGenes, MaximumAccuracy=MaxAcc, MeanAccuracy=MeanAcc, MinAccuracy=MinAcc, BestIndividuals=bestIndividual[-1,])
   return(rezultate)
 }
+
 ####################################################################

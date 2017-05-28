@@ -4,18 +4,20 @@
 \alias{dGAselID}
 \title{dGAselID}
 \usage{
-dGAselID(x, response, method = knnI(k = 3, l = 2), trainTest = "LOG",
+dGAselID(x, response, method = knn.cvI(k = 3, l = 2), trainTest = "LOG",
   startGenes, populationSize, iterations, noChr = 22, elitism = NA,
-  ID = "ID1", pMutationChance = NA, randomAssortment = TRUE,
-  embryonicSelection = NA, EveryGeneInInitialPopulation = TRUE,
-  nnetSize = NA, nnetDecay = NA, rdaAlpha = NA, rdaDelta = NA, ...)
+  ID = "ID1", pMutationChance = 0, nSMutationChance = 0,
+  fSMutationChance = 0, lSDeletionChance = 0, wChrDeletionChance = 0,
+  transposonChance = 0, randomAssortment = TRUE, embryonicSelection = NA,
+  EveryGeneInInitialPopulation = TRUE, nnetSize = NA, nnetDecay = NA,
+  rdaAlpha = NA, rdaDelta = NA, ...)
 }
 \arguments{
 \item{x}{Dataset in ExpressionSet format.}
 
 \item{response}{Response variable}
 
-\item{method}{Supervised classifier for fitness evaluation. Most of the supervised classifiers in MLInterfaces are acceptable. The default is knnI(k=3, l=2).}
+\item{method}{Supervised classifier for fitness evaluation. Most of the supervised classifiers in MLInterfaces are acceptable. The default is knn.cvI(k=3, l=2).}
 
 \item{trainTest}{Cross-validation method. The default is "LOG".}
 
@@ -29,9 +31,19 @@ dGAselID(x, response, method = knnI(k = 3, l = 2), trainTest = "LOG",
 
 \item{elitism}{Elite population in percentages.}
 
-\item{ID}{Incomplete Dominance. The default value is "ID1". Use "ID2" for elitism applied to individuals.}
+\item{ID}{Dominance. The default value is "ID1". Use "ID2" for Incomplete Dominance.}
 
-\item{pMutationChance}{Chance for a point mutation to occur.}
+\item{pMutationChance}{Chance for a Point Mutation to occur.}
+
+\item{nSMutationChance}{Chance for a Non-sense Mutation to occur.}
+
+\item{fSMutationChance}{Chance for a Frameshift Mutation to occur.}
+
+\item{lSDeletionChance}{Chance for a Large Segment Deletion to occur.}
+
+\item{wChrDeletionChance}{Chance for a Whole Chromosome Deletion to occur.}
+
+\item{transposonChance}{Chance for a Transposon Mutation to occur.}
 
 \item{randomAssortment}{Random Assortment of Chromosomes for recombinations. The default value is TRUE.}
 
@@ -61,17 +73,22 @@ Initializes and starts the search with the genetic algorithm.
  smallALL = bALL[, bALL$mol.biol \%in\% c("BCR/ABL", "NEG")]
  smallALL$mol.biol = factor(smallALL$mol.biol)
  smallALL$BT = factor(smallALL$BT)
- f1 <- pOverA(0.25, 9)
- f2 <- function(x) (IQR(x) > 0.75)
+ f1 <- pOverA(0.25, log2(100))
+ f2 <- function(x) (IQR(x) > 0.5)
  f3 <- ttest(smallALL$mol.biol, p=0.1)
  ff <- filterfun(f1, f2, f3)
  selectedsmallALL <- genefilter(exprs(smallALL), ff)
+ smallALL = smallALL[selectedsmallALL, ]
+ rm(f1)
+ rm(f2)
+ rm(f3)
+ rm(ff)
+ rm(bALL)
  sum(selectedsmallALL)
 
  set.seed(1357)
- res1<-dGAselID(smallALL, "mol.biol", method=knn.cvI(k=3, l=2), trainTest=1:79,
-   startGenes=5, populationSize=50, iterations=4, noChr=5, mutationChance=0.05,
-   elitism=10, ID="ID1")
+ res<-dGAselID(smallALL, "mol.biol", trainTest=5:79, startGenes=12, populationSize=500,
+               iterations=150, pMutationChance=0.025, elitism=4)
  }
 }
 
