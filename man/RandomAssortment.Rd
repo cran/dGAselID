@@ -21,8 +21,8 @@ data(ALL)
 
 demoALL<-ALL[1:12,1:8]
 
-population02<-InitialPopulation(demoALL, 20, 4, FALSE)
-chrConf02<-splitChromosomes(demoALL, 5)
+population02<-InitialPopulation(demoALL, 2, 4, FALSE)
+chrConf02<-splitChromosomes(demoALL, 4)
 
 set.seed(1357)
 cr1<-Crossover(population02[1,], population02[2,], chrConf02)

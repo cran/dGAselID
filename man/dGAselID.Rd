@@ -33,17 +33,17 @@ dGAselID(x, response, method = knn.cvI(k = 3, l = 2), trainTest = "LOG",
 
 \item{ID}{Dominance. The default value is "ID1". Use "ID2" for Incomplete Dominance.}
 
-\item{pMutationChance}{Chance for a Point Mutation to occur.}
+\item{pMutationChance}{Chance for a Point Mutation to occur. The default value is 0.}
 
-\item{nSMutationChance}{Chance for a Non-sense Mutation to occur.}
+\item{nSMutationChance}{Chance for a Non-sense Mutation to occur. The default value is 0.}
 
-\item{fSMutationChance}{Chance for a Frameshift Mutation to occur.}
+\item{fSMutationChance}{Chance for a Frameshift Mutation to occur. The default value is 0.}
 
-\item{lSDeletionChance}{Chance for a Large Segment Deletion to occur.}
+\item{lSDeletionChance}{Chance for a Large Segment Deletion to occur. The default value is 0.}
 
-\item{wChrDeletionChance}{Chance for a Whole Chromosome Deletion to occur.}
+\item{wChrDeletionChance}{Chance for a Whole Chromosome Deletion to occur. The default value is 0.}
 
-\item{transposonChance}{Chance for a Transposon Mutation to occur.}
+\item{transposonChance}{Chance for a Transposon Mutation to occur. The default value is 0.}
 
 \item{randomAssortment}{Random Assortment of Chromosomes for recombinations. The default value is TRUE.}
 
@@ -60,6 +60,15 @@ dGAselID(x, response, method = knn.cvI(k = 3, l = 2), trainTest = "LOG",
 \item{rdaDelta}{for rdaI. The default value is NA.}
 
 \item{...}{Additional arguments.}
+}
+\value{
+The output is a list containing 5 named vectors, records of the evolution:
+  \item{DGenes}{The occurrences in selected genotypes for every gene,}
+  \item{dGenes}{The occurrences in discarded genotypes for every gene,}
+  \item{MaximumAccuracy}{Maximum accuracy in every generation,}
+  \item{MeanAccuracy}{Average accuracy in every generation,}
+  \item{MinAccuracy}{Minimum accuracy in every generation,}
+  \item{BestIndividuals}{Best individual in every generation.}
 }
 \description{
 Initializes and starts the search with the genetic algorithm.
@@ -86,9 +95,9 @@ Initializes and starts the search with the genetic algorithm.
  rm(bALL)
  sum(selectedsmallALL)
 
- set.seed(1357)
- res<-dGAselID(smallALL, "mol.biol", trainTest=5:79, startGenes=12, populationSize=500,
-               iterations=150, pMutationChance=0.025, elitism=4)
+ set.seed(149)
+ res<-dGAselID(smallALL, "mol.biol", trainTest=1:79, startGenes=12, populationSize=200,
+               iterations=150, noChr=5, pMutationChance=0.0075, elitism=4)
  }
 }
 

@@ -20,7 +20,7 @@ data(ALL)
 demoALL<-ALL[1:12,1:8]
 
 population02<-InitialPopulation(demoALL, 20, 4, FALSE)
-Individuals(population02)
+individuals02<-Individuals(population02)
  }
 }
 

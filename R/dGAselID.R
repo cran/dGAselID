@@ -79,7 +79,7 @@ InitialPopulation <- function(x, populationSize, startGenes, EveryGeneInInitialP
 #' demoALL<-ALL[1:12,1:8]
 #'
 #' population02<-InitialPopulation(demoALL, 20, 4, FALSE)
-#' Individuals(population02)
+#' individuals02<-Individuals(population02)
 #'  }
 #' @export
 #
@@ -438,8 +438,8 @@ Crossover<-function(c1, c2, chrConf){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' population02<-InitialPopulation(demoALL, 20, 4, FALSE)
-#' chrConf02<-splitChromosomes(demoALL, 5)
+#' population02<-InitialPopulation(demoALL, 2, 4, FALSE)
+#' chrConf02<-splitChromosomes(demoALL, 4)
 #'
 #' set.seed(1357)
 #' cr1<-Crossover(population02[1,], population02[2,], chrConf02)
@@ -489,12 +489,13 @@ RandomAssortment<-function(newChrs, chrConf){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population01<-InitialPopulation(demoALL, 4, 4)
-#' individuals01<-Individuals(population01)
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' individuals01
-#' pointMutation(individuals01, 5)
+#' individuals
+#' set.seed(123)
+#' pointMutation(individuals, 4)
 #'  }
 #' @export
 #
@@ -535,14 +536,16 @@ pointMutation<-function(individuals, mutationChance){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population03<-InitialPopulation(demoALL, 4, 10)
-#' individuals03<-Individuals(population03)
-#' chrConf03<-splitChromosomes(demoALL, 2)
-#' chrConf03
-#' individuals03
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' nonSenseMutation(individuals03, chrConf03, 20)
+#' chrConf<-splitChromosomes(demoALL, 2)
+#' chrConf
+#' individuals
+#'
+#' set.seed(123)
+#' nonSenseMutation(individuals, chrConf, 20)
 #'  }
 #' @export
 #
@@ -605,14 +608,16 @@ nonSenseMutation<-function(individuals, chrConf, mutationChance){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population03<-InitialPopulation(demoALL, 4, 5)
-#' individuals03<-Individuals(population03)
-#' chrConf03<-splitChromosomes(demoALL, 2)
-#' chrConf03
-#' individuals03
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' frameShiftMutation(individuals03, chrConf03, 20)
+#' chrConf<-splitChromosomes(demoALL, 2)
+#' chrConf
+#' individuals
+#'
+#' set.seed(123)
+#' frameShiftMutation(individuals, chrConf, 20)
 #'  }
 #' @export
 #
@@ -662,7 +667,7 @@ frameShiftMutation<-function(individuals, chrConf, mutationChance){
 }
 
 #########################################################################
-#Large Segment Deletion during MEIOSIS
+#Large Segment Deletion Mutation
 #########################################################################
 #
 #' largeSegmentDeletion
@@ -679,14 +684,16 @@ frameShiftMutation<-function(individuals, chrConf, mutationChance){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population03<-InitialPopulation(demoALL, 4, 7)
-#' individuals03<-Individuals(population03)
-#' chrConf03<-splitChromosomes(demoALL, 2)
-#' chrConf03
-#' individuals03
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' largeSegmentDeletion(individuals03, chrConf03, 20)
+#' chrConf<-splitChromosomes(demoALL, 2)
+#' chrConf
+#' individuals
+#'
+#' set.seed(123)
+#' largeSegmentDeletion(individuals, chrConf, 20)
 #'  }
 #' @export
 #
@@ -739,14 +746,16 @@ largeSegmentDeletion<-function(individuals, chrConf, mutationChance){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population03<-InitialPopulation(demoALL, 4, 10)
-#' individuals03<-Individuals(population03)
-#' chrConf03<-splitChromosomes(demoALL, 2)
-#' chrConf03
-#' individuals03
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' wholeChromosomeDeletion(individuals03, chrConf03, 20)
+#' chrConf<-splitChromosomes(demoALL, 2)
+#' chrConf
+#' individuals
+#'
+#' set.seed(123)
+#' wholeChromosomeDeletion(individuals, chrConf, 20)
 #'  }
 #' @export
 #
@@ -798,14 +807,16 @@ wholeChromosomeDeletion<-function(individuals, chrConf, mutationChance){
 #'
 #' demoALL<-ALL[1:12,1:8]
 #'
-#' set.seed(1357)
-#' population03<-InitialPopulation(demoALL, 4, 5)
-#' individuals03<-Individuals(population03)
-#' chrConf03<-splitChromosomes(demoALL, 2)
-#' chrConf03
-#' individuals03
+#' set.seed(1234)
+#' population<-InitialPopulation(demoALL, 4, 9)
+#' individuals<-Individuals(population)
 #'
-#' transposon(individuals03, chrConf03, 20)
+#' chrConf<-splitChromosomes(demoALL, 2)
+#' chrConf
+#' individuals
+#'
+#' set.seed(123)
+#' transposon(individuals, chrConf, 20)
 #'  }
 #' @export
 #
@@ -1024,12 +1035,12 @@ PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
 #' @param noChr Number of chromosomes. The default value is 22.
 #' @param elitism Elite population in percentages.
 #' @param ID Dominance. The default value is "ID1". Use "ID2" for Incomplete Dominance.
-#' @param pMutationChance Chance for a Point Mutation to occur.
-#' @param nSMutationChance Chance for a Non-sense Mutation to occur.
-#' @param fSMutationChance Chance for a Frameshift Mutation to occur.
-#' @param lSDeletionChance Chance for a Large Segment Deletion to occur.
-#' @param wChrDeletionChance Chance for a Whole Chromosome Deletion to occur.
-#' @param transposonChance Chance for a Transposon Mutation to occur.
+#' @param pMutationChance Chance for a Point Mutation to occur. The default value is 0.
+#' @param nSMutationChance Chance for a Non-sense Mutation to occur. The default value is 0.
+#' @param fSMutationChance Chance for a Frameshift Mutation to occur. The default value is 0.
+#' @param lSDeletionChance Chance for a Large Segment Deletion to occur. The default value is 0.
+#' @param wChrDeletionChance Chance for a Whole Chromosome Deletion to occur. The default value is 0.
+#' @param transposonChance Chance for a Transposon Mutation to occur. The default value is 0.
 #' @param randomAssortment Random Assortment of Chromosomes for recombinations. The default value is TRUE.
 #' @param embryonicSelection Remove chromosomes with fitness < specified value. The default value is NA.
 #' @param EveryGeneInInitialPopulation Request for every gene to be present in the initial population. The default value is TRUE.
@@ -1038,6 +1049,14 @@ PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
 #' @param rdaAlpha for rdaI. The default value is NA.
 #' @param rdaDelta for rdaI. The default value is NA.
 #' @param ... Additional arguments.
+#' @return The output is a list containing 5 named vectors, records of the evolution:
+#'   \item{DGenes}{The occurrences in selected genotypes for every gene,}
+#'   \item{dGenes}{The occurrences in discarded genotypes for every gene,}
+#'   \item{MaximumAccuracy}{Maximum accuracy in every generation,}
+#'   \item{MeanAccuracy}{Average accuracy in every generation,}
+#'   \item{MinAccuracy}{Minimum accuracy in every generation,}
+#'   \item{BestIndividuals}{Best individual in every generation.}
+#'
 #' @examples
 #' \dontrun{
 #'  library(genefilter)
@@ -1060,9 +1079,9 @@ PlotGenAlg <- function(DGenes, dGenes, maxEval, meanEval){
 #'  rm(bALL)
 #'  sum(selectedsmallALL)
 #'
-#'  set.seed(1357)
-#'  res<-dGAselID(smallALL, "mol.biol", trainTest=5:79, startGenes=12, populationSize=500,
-#'                iterations=150, pMutationChance=0.025, elitism=4)
+#'  set.seed(149)
+#'  res<-dGAselID(smallALL, "mol.biol", trainTest=1:79, startGenes=12, populationSize=200,
+#'                iterations=150, noChr=5, pMutationChance=0.0075, elitism=4)
 #'  }
 #' @export
 #

@@ -23,14 +23,16 @@ data(ALL)
 
 demoALL<-ALL[1:12,1:8]
 
-set.seed(1357)
-population03<-InitialPopulation(demoALL, 4, 7)
-individuals03<-Individuals(population03)
-chrConf03<-splitChromosomes(demoALL, 2)
-chrConf03
-individuals03
+set.seed(1234)
+population<-InitialPopulation(demoALL, 4, 9)
+individuals<-Individuals(population)
 
-largeSegmentDeletion(individuals03, chrConf03, 20)
+chrConf<-splitChromosomes(demoALL, 2)
+chrConf
+individuals
+
+set.seed(123)
+largeSegmentDeletion(individuals, chrConf, 20)
  }
 }
 

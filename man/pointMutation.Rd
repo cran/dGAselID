@@ -21,12 +21,13 @@ data(ALL)
 
 demoALL<-ALL[1:12,1:8]
 
-set.seed(1357)
-population01<-InitialPopulation(demoALL, 4, 4)
-individuals01<-Individuals(population01)
+set.seed(1234)
+population<-InitialPopulation(demoALL, 4, 9)
+individuals<-Individuals(population)
 
-individuals01
-pointMutation(individuals01, 5)
+individuals
+set.seed(123)
+pointMutation(individuals, 4)
  }
 }
 

@@ -2,7 +2,7 @@ Package: dGAselID
 Type: Package
 Title: Genetic Algorithm with Incomplete Dominance for Feature
         Selection
-Version: 1.1
+Version: 1.2
 Author: Nicolae Teodor Melita
 Maintainer: Nicolae Teodor Melita <nt_melita@yahoo.com>
 Description: Feature selection from high dimensional data using a diploid
@@ -14,6 +14,6 @@ License: MIT + file LICENSE
 LazyData: TRUE
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2017-05-28 16:02:46 UTC; Dr
+Packaged: 2017-07-10 03:52:32 UTC; Dr
 Repository: CRAN
-Date/Publication: 2017-05-28 19:09:06 UTC
+Date/Publication: 2017-07-10 05:02:55 UTC
